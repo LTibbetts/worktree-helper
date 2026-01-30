@@ -8,22 +8,20 @@ cmd_capture_templates() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper capture-templates [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper capture-templates [options]
 
 Copy files from source repo to templates directory.
 Files are determined by the 'files' and 'patterns' in the project config.
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --dry-run         Show what would be copied without copying
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper capture-templates
   worktree-helper capture-templates --dry-run
-  worktree-helper capture-templates --project myproject
-EOF
+  worktree-helper capture-templates --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;

@@ -5,14 +5,12 @@ cmd_list() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper list
+                echo -e "${BOLD}Usage:${RESET} worktree-helper list
 
 List all configured projects.
 
-Options:
-  --help, -h  Show this help message
-EOF
+${BOLD}Options:${RESET}
+  --help, -h  Show this help message"
                 return 0 ;;
             -*) die "Unknown option: $1" ;;
             *) die "Unexpected argument: $1" ;;
@@ -45,21 +43,19 @@ cmd_install_alias() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper install-alias
+                echo -e "${BOLD}Usage:${RESET} worktree-helper install-alias
 
 Add 'git wt-add' alias to ~/.gitconfig for automatic sync on worktree creation.
 
-Options:
+${BOLD}Options:${RESET}
   --help, -h  Show this help message
 
 The alias wraps 'git worktree add' and automatically runs 'worktree-helper sync'
 on the new worktree.
 
-Usage after install:
+${BOLD}Usage after install:${RESET}
   git wt-add <path> <branch>
-  git wt-add --checkout ~/worktrees/feature feature-branch
-EOF
+  git wt-add --checkout ~/worktrees/feature feature-branch"
                 return 0 ;;
             -*) die "Unknown option: $1" ;;
             *) die "Unexpected argument: $1" ;;

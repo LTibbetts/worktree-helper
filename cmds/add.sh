@@ -8,19 +8,17 @@ cmd_add_file() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper add-file <path> [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper add-file <path> [options]
 
 Add an explicit file path to sync.
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper add-file justfile
-  worktree-helper add-file .claude/settings.local.json --project myproject
-EOF
+  worktree-helper add-file .claude/settings.local.json --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;
@@ -71,21 +69,19 @@ cmd_add_folder() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper add-folder <path> [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper add-folder <path> [options]
 
 Add a folder to sync (recursively captures all files).
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>    Project name (default: auto-detect)
   --follow-symlinks   Follow symbolic links when capturing
   --help, -h          Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper add-folder .claude
   worktree-helper add-folder scripts/local --follow-symlinks
-  worktree-helper add-folder .claude --project myproject
-EOF
+  worktree-helper add-folder .claude --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;
@@ -145,20 +141,18 @@ cmd_add_files() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper add-files <glob> [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper add-files <glob> [options]
 
 Add a glob pattern to sync (e.g., **/CLAUDE.local.md).
 Remember to quote the pattern to prevent shell expansion.
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --help, -h        Show this help message
 
-Examples:
-  worktree-helper add-files "**/CLAUDE.local.md"
-  worktree-helper add-files "**/.envrc" --project myproject
-EOF
+${BOLD}Examples:${RESET}
+  worktree-helper add-files \"**/CLAUDE.local.md\"
+  worktree-helper add-files \"**/.envrc\" --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;

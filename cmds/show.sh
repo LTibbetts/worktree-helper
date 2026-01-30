@@ -8,21 +8,19 @@ cmd_show_templates() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper show-templates [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper show-templates [options]
 
 Show captured template files, optionally with their contents.
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --contents        Show file contents
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper show-templates
   worktree-helper show-templates --contents
-  worktree-helper show-templates --project myproject
-EOF
+  worktree-helper show-templates --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;

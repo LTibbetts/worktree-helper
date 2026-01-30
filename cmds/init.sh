@@ -7,19 +7,17 @@ cmd_init() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper init <project> [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper init <project> [options]
 
 Initialize a new project configuration.
 
-Options:
+${BOLD}Options:${RESET}
   --source <path>   Source repository path (default: auto-detect main worktree)
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper init myproject
-  worktree-helper init myproject --source /path/to/repo
-EOF
+  worktree-helper init myproject --source /path/to/repo"
                 return 0 ;;
             --source) source_path="$2"; shift 2 ;;
             --source=*) source_path="${1#*=}"; shift ;;

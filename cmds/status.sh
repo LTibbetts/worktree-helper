@@ -8,19 +8,17 @@ cmd_status() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper status [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper status [options]
 
 Show sync status for all worktrees.
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper status
-  worktree-helper status --project myproject
-EOF
+  worktree-helper status --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;

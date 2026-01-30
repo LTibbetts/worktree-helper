@@ -1,8 +1,7 @@
 # help.sh - Help and version commands
 
 cmd_help() {
-    cat <<EOF
-${BOLD}worktree-helper${RESET} v$VERSION - Sync gitignored files to git worktrees
+    echo -e "${BOLD}worktree-helper${RESET} v$VERSION - Sync gitignored files to git worktrees
 
 ${BOLD}USAGE:${RESET}
     worktree-helper <command> [options]
@@ -32,15 +31,14 @@ ${BOLD}EXAMPLES:${RESET}
     # Initial setup
     worktree-helper init all
     worktree-helper add-file justfile
-    worktree-helper add-files "**/CLAUDE.local.md"
+    worktree-helper add-files \"**/CLAUDE.local.md\"
     worktree-helper capture-templates
 
     # Sync to new worktree
     git wt-add ../feature-branch feature-branch
 
     # Sync to existing worktrees
-    worktree-helper sync --all
-EOF
+    worktree-helper sync --all"
 }
 
 cmd_version() {

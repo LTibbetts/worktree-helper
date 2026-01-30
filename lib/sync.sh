@@ -8,24 +8,22 @@ cmd_sync() {
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --help|-h)
-                cat <<EOF
-Usage: worktree-helper sync [worktree-path] [options]
+                echo -e "${BOLD}Usage:${RESET} worktree-helper sync [worktree-path] [options]
 
 Sync template files to worktree(s).
 
-Options:
+${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --all             Sync to all worktrees
   --force           Overwrite without prompting
   --dry-run         Show what would be synced without syncing
   --help, -h        Show this help message
 
-Examples:
+${BOLD}Examples:${RESET}
   worktree-helper sync
   worktree-helper sync --all
   worktree-helper sync /path/to/worktree
-  worktree-helper sync --all --force
-EOF
+  worktree-helper sync --all --force"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;
