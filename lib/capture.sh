@@ -105,10 +105,44 @@ ${BOLD}Examples:${RESET}
 
         local folder_dst="$templates_dir/$folder_path"
 
+        # Build folder-specific excludes array
+        local -a folder_excludes=()
+        while IFS= read -r exclude; do
+            [[ -n "$exclude" ]] && folder_excludes+=("$exclude")
+        done < <(echo "$folder_entry" | jq -r '.excludes[]? // empty')
+
+        # Function to check if path should be excluded (global or folder-specific)
+        is_folder_excluded() {
+            local path="$1"
+            # Check global excludes
+            for exclude in "${excludes[@]}"; do
+                if [[ "$path" == *"/$exclude/"* || "$path" == "$exclude/"* || "$path" == *"/$exclude" ]]; then
+                    return 0
+                fi
+            done
+            # Check folder-specific excludes
+            for exclude in "${folder_excludes[@]}"; do
+                if [[ "$path" == "$exclude" || "$path" == "$exclude/"* ]]; then
+                    return 0
+                fi
+            done
+            return 1
+        }
+
         # Build rsync exclude args from config excludes
         local -a rsync_excludes=()
         for exclude in "${excludes[@]}"; do
             rsync_excludes+=(--exclude="$exclude")
+        done
+        # Add folder-specific excludes to rsync
+        for exclude in "${folder_excludes[@]}"; do
+            # Convert absolute path to relative path for rsync
+            local rel_exclude="${exclude#$folder_path/}"
+            if [[ "$rel_exclude" != "$exclude" ]]; then
+                rsync_excludes+=(--exclude="$rel_exclude")
+            else
+                rsync_excludes+=(--exclude="$exclude")
+            fi
         done
 
         # Count files first (for reporting)
@@ -123,7 +157,7 @@ ${BOLD}Examples:${RESET}
         while IFS= read -r src_file; do
             [[ -z "$src_file" ]] && continue
             local rel_path="${src_file#$source_path/}"
-            if ! is_excluded "$rel_path"; then
+            if ! is_folder_excluded "$rel_path"; then
                 ((folder_count++)) || true
                 if $verbose && $dry_run; then
                     log_info "[dry-run] Would copy: $rel_path"
@@ -147,7 +181,7 @@ ${BOLD}Examples:${RESET}
                 while IFS= read -r src_file; do
                     [[ -z "$src_file" ]] && continue
                     local rel_path="${src_file#$source_path/}"
-                    if ! is_excluded "$rel_path"; then
+                    if ! is_folder_excluded "$rel_path"; then
                         log_success "Copied: $rel_path"
                     fi
                 done < <(find "${find_args[@]}")
