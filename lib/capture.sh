@@ -2,7 +2,8 @@
 
 cmd_capture_templates() {
     require_jq
-    local project="" dry_run=false
+    require_rsync
+    local project="" dry_run=false verbose=false
 
     # Parse arguments
     while [[ $# -gt 0 ]]; do
@@ -16,16 +17,19 @@ Files are determined by the 'files' and 'patterns' in the project config.
 ${BOLD}Options:${RESET}
   --project <name>  Project name (default: auto-detect)
   --dry-run         Show what would be copied without copying
+  --verbose, -v     Show individual files when capturing folders
   --help, -h        Show this help message
 
 ${BOLD}Examples:${RESET}
   worktree-helper capture-templates
   worktree-helper capture-templates --dry-run
+  worktree-helper capture-templates --verbose
   worktree-helper capture-templates --project myproject"
                 return 0 ;;
             --project) project="$2"; shift 2 ;;
             --project=*) project="${1#*=}"; shift ;;
             --dry-run) dry_run=true; shift ;;
+            --verbose|-v) verbose=true; shift ;;
             -*) die "Unknown option: $1" ;;
             *) die "Unexpected argument: $1" ;;
         esac
@@ -99,33 +103,58 @@ ${BOLD}Examples:${RESET}
             continue
         fi
 
-        # Build find command args - use -L flag only if follow_symlinks is true
+        local folder_dst="$templates_dir/$folder_path"
+
+        # Build rsync exclude args from config excludes
+        local -a rsync_excludes=()
+        for exclude in "${excludes[@]}"; do
+            rsync_excludes+=(--exclude="$exclude")
+        done
+
+        # Count files first (for reporting)
         local -a find_args=()
         if [[ "$follow_symlinks" == "true" ]]; then
             find_args+=(-L)
         fi
         find_args+=("$folder_src" -type f)
 
+        # Count non-excluded files
+        local folder_count=0
         while IFS= read -r src_file; do
             [[ -z "$src_file" ]] && continue
             local rel_path="${src_file#$source_path/}"
-
-            # Check excludes
-            if is_excluded "$rel_path"; then
-                continue
+            if ! is_excluded "$rel_path"; then
+                ((folder_count++)) || true
+                if $verbose && $dry_run; then
+                    log_info "[dry-run] Would copy: $rel_path"
+                fi
             fi
-
-            local dst="$templates_dir/$rel_path"
-
-            if $dry_run; then
-                log_info "[dry-run] Would copy: $src_file → $dst"
-            else
-                mkdir -p "$(dirname "$dst")"
-                cp "$src_file" "$dst"
-                log_success "Copied: $rel_path"
-            fi
-            ((count++)) || true
         done < <(find "${find_args[@]}")
+
+        if $dry_run; then
+            log_info "[dry-run] Would copy folder: $folder_path/ ($folder_count files)"
+        else
+            # Use rsync for efficient folder copy with excludes
+            mkdir -p "$folder_dst"
+            local -a rsync_args=(-a --delete "${rsync_excludes[@]}")
+            if [[ "$follow_symlinks" == "true" ]]; then
+                rsync_args+=(-L)
+            fi
+            rsync "${rsync_args[@]}" "$folder_src/" "$folder_dst/"
+
+            if $verbose; then
+                # Show individual files that were copied
+                while IFS= read -r src_file; do
+                    [[ -z "$src_file" ]] && continue
+                    local rel_path="${src_file#$source_path/}"
+                    if ! is_excluded "$rel_path"; then
+                        log_success "Copied: $rel_path"
+                    fi
+                done < <(find "${find_args[@]}")
+            fi
+            log_success "Copied folder: $folder_path/ ($folder_count files)"
+        fi
+        ((count += folder_count)) || true
     done < <(jq -c '.folders[]? // empty' "$config_file")
 
     # Process glob patterns

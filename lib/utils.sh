@@ -7,3 +7,7 @@ require_cmd() {
 require_jq() {
     require_cmd jq
 }
+
+require_rsync() {
+    require_cmd rsync
+}
